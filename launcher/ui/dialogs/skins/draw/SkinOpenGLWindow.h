@@ -45,6 +45,8 @@ class SkinOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions {
     void updateCape(const QImage& cape);
     void setElytraVisible(bool visible);
 
+    static bool hasOpenGL();
+
    protected:
     void mousePressEvent(QMouseEvent* e) override;
     void mouseReleaseEvent(QMouseEvent* e) override;
@@ -73,6 +75,8 @@ class SkinOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions {
     float m_distance = 48;
     float m_yaw = 90;   // Horizontal rotation angle
     float m_pitch = 0;  // Vertical rotation angle
+
+    bool m_isFirstFrame = true;
 
     opengl::BoxGeometry* m_background = nullptr;
     QOpenGLTexture* m_backgroundTexture = nullptr;

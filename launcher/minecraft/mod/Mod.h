@@ -44,8 +44,6 @@
 #include <QPixmap>
 #include <QPixmapCache>
 
-#include <optional>
-
 #include "ModDetails.h"
 #include "Resource.h"
 
@@ -72,6 +70,13 @@ class Mod : public Resource {
     auto loaders() const -> QString;
     auto mcVersions() const -> QString;
     auto releaseType() const -> QString;
+    QStringList dependencies() const;
+
+    int requiredByCount() const;
+    int requiresCount() const;
+
+    void setRequiredByCount(int value);
+    void setRequiresCount(int value);
 
     /** Get the intneral path to the mod's icon file*/
     QString iconPath() const { return m_local_details.icon_file; }
@@ -104,4 +109,7 @@ class Mod : public Resource {
         bool wasEverUsed = false;
         bool wasReadAttempt = false;
     } mutable m_packImageCacheKey;
+
+    int m_requiredByCount = 0;
+    int m_requiresCount = 0;
 };

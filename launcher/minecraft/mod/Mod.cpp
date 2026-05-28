@@ -36,7 +36,6 @@
  */
 
 #include "Mod.h"
-#include <qpixmap.h>
 
 #include <QDir>
 #include <QRegularExpression>
@@ -62,18 +61,18 @@ void Mod::setDetails(const ModDetails& details)
 
 int Mod::compare(const Resource& other, SortType type) const
 {
-    auto cast_other = dynamic_cast<Mod const*>(&other);
+    auto cast_other = dynamic_cast<const Mod*>(&other);
     if (!cast_other)
         return Resource::compare(other, type);
 
     switch (type) {
         default:
-        case SortType::ENABLED:
-        case SortType::NAME:
-        case SortType::DATE:
-        case SortType::SIZE:
+        case SortType::Enabled:
+        case SortType::Name:
+        case SortType::Date:
+        case SortType::Size:
             return Resource::compare(other, type);
-        case SortType::VERSION: {
+        case SortType::Version: {
             auto this_ver = Version(version());
             auto other_ver = Version(cast_other->version());
             if (this_ver > other_ver)
@@ -82,28 +81,42 @@ int Mod::compare(const Resource& other, SortType type) const
                 return -1;
             break;
         }
-        case SortType::SIDE: {
+        case SortType::Side: {
             auto compare_result = QString::compare(side(), cast_other->side(), Qt::CaseInsensitive);
             if (compare_result != 0)
                 return compare_result;
             break;
         }
-        case SortType::MC_VERSIONS: {
+        case SortType::McVersions: {
             auto compare_result = QString::compare(mcVersions(), cast_other->mcVersions(), Qt::CaseInsensitive);
             if (compare_result != 0)
                 return compare_result;
             break;
         }
-        case SortType::LOADERS: {
+        case SortType::Loaders: {
             auto compare_result = QString::compare(loaders(), cast_other->loaders(), Qt::CaseInsensitive);
             if (compare_result != 0)
                 return compare_result;
             break;
         }
-        case SortType::RELEASE_TYPE: {
+        case SortType::ReleaseType: {
             auto compare_result = QString::compare(releaseType(), cast_other->releaseType(), Qt::CaseInsensitive);
             if (compare_result != 0)
                 return compare_result;
+            break;
+        }
+        case SortType::RequiredBy: {
+            if (requiredByCount() > cast_other->requiredByCount())
+                return 1;
+            if (requiredByCount() < cast_other->requiredByCount())
+                return -1;
+            break;
+        }
+        case SortType::Requires: {
+            if (requiresCount() > cast_other->requiresCount())
+                return 1;
+            if (requiresCount() < cast_other->requiresCount())
+                return -1;
             break;
         }
     }
@@ -197,7 +210,7 @@ auto Mod::releaseType() const -> QString
     if (metadata())
         return metadata()->releaseType.toString();
 
-    return ModPlatform::IndexedVersionType().toString();
+    return ModPlatform::IndexedVersionType(ModPlatform::IndexedVersionType::Unknown).toString();
 }
 
 auto Mod::description() const -> QString
@@ -283,4 +296,26 @@ QPixmap Mod::icon(QSize size, Qt::AspectRatioMode mode) const
 bool Mod::valid() const
 {
     return !m_local_details.mod_id.isEmpty();
+}
+
+QStringList Mod::dependencies() const
+{
+    return details().dependencies;
+}
+
+int Mod::requiredByCount() const
+{
+    return m_requiredByCount;
+}
+int Mod::requiresCount() const
+{
+    return m_requiresCount;
+}
+void Mod::setRequiredByCount(int value)
+{
+    m_requiredByCount = value;
+}
+void Mod::setRequiresCount(int value)
+{
+    m_requiresCount = value;
 }
